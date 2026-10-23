@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Offline Demo Lab | SecureScan Web Security Scanner{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="soc-card p-4" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%); border-left: 4px solid var(--accent-cyan);">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-cpu fs-1 text-info"></i>
+                <div>
+                    <h2 class="h3 fw-bold text-white mb-1">Safe Local Demonstration Laboratory</h2>
+                    <p class="text-muted mb-0 small">
+                        Evaluate the SecureScan assessment engine, severity scoring, and ReportLab PDF reporting completely offline without outbound internet traffic.
+                        Each scenario injects realistic, controlled HTTP response data into the analysis pipeline.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5 Scenario Cards -->
+    {% for sc_id, sc in scenarios.items() %}
+    <div class="col-lg-6">
+        <div class="soc-card h-100 d-flex flex-column">
+            <div class="soc-card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-dark border border-secondary font-monospace text-info">{{ loop.index }}</span>
+                    <span class="fw-bold text-light">{{ sc.name }}</span>
+                </div>
+                {% if sc_id == 'hardened' %}
+                    <span class="badge bg-success">Grade A</span>
+                {% elif sc_id == 'legacy' %}
+                    <span class="badge bg-warning text-dark">Grade D</span>
+                {% elif sc_id == 'permissive_cors' %}
+                    <span class="badge bg-danger">CORS Misconfig</span>
+                {% elif sc_id == 'vulnerable_cookies' %}
+                    <span class="badge bg-danger">Session Risk</span>
+                {% else %}
+                    <span class="badge bg-secondary">Network Error</span>
+                {% endif %}
+            </div>
+            <div class="soc-card-body flex-grow-1 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="mb-2">
+                        <span class="text-secondary small fw-bold">Simulated Target:</span>
+                        <span class="font-monospace text-info small ms-1">{{ sc.simulated_target }}</span>
+                    </div>
+                    <p class="text-muted small mb-3">{{ sc.description }}</p>
+                    
+                    <div class="p-2 rounded bg-dark border border-secondary mb-3 small">
+                        <span class="text-secondary d-block fw-bold mb-1">Key Checks Evaluated:</span>
+                        <ul class="mb-0 ps-3 text-light">
+                            {% if sc_id == 'hardened' %}
+                                <li>Strict CSP (default-src, no unsafe-inline), HSTS with preload.</li>
+                                <li>All cookies flagged with Secure, HttpOnly, and SameSite=Strict.</li>
+                            {% elif sc_id == 'legacy' %}
+                                <li>Missing CSP, missing X-Frame-Options (Clickjacking vulnerability).</li>
+                                <li>Missing HSTS and X-Content-Type-Options.</li>
+                            {% elif sc_id == 'permissive_cors' %}
+                                <li>Wildcard Access-Control-Allow-Origin combined with Allow-Credentials.</li>
+                                <li>Broad HTTP methods (DELETE, PUT, PATCH).</li>
+                            {% elif sc_id == 'vulnerable_cookies' %}
+                                <li>Plaintext HTTP transport (Sensitive cookies exposed).</li>
+                                <li>Cookies missing Secure and HttpOnly flags.</li>
+                            {% else %}
+                                <li>Graceful timeout detection without false-positive findings.</li>
+                                <li>Network boundary diagnostic logging.</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <a href="{{ url_for('run_demo_scenario', scenario_id=sc_id) }}" class="btn btn-cyan w-100 py-2">
+                        <i class="bi bi-play-fill me-1"></i> Run Simulated Audit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

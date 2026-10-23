@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}About & Documentation | SecureScan Web Security Scanner{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Header Hero -->
+    <div class="col-12">
+        <div class="soc-card p-4">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-book-half fs-1 text-info"></i>
+                <div>
+                    <h2 class="h3 fw-bold text-white mb-1">SecureScan Technical Documentation & Guidance</h2>
+                    <p class="text-muted mb-0 small">
+                        A defensive web security assessment framework designed for cybersecurity students, developers, and security auditors.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Purpose & Philosophy -->
+    <div class="col-lg-8">
+        <div class="soc-card mb-4">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-shield-check me-2 text-info"></i>What SecureScan Does</span>
+            </div>
+            <div class="soc-card-body small text-light">
+                <p>
+                    <strong>SecureScan</strong> is an automated, defensive web configuration scanner that audits web applications against modern hardening standards.
+                    Rather than conducting destructive penetration testing or sending exploit payloads, SecureScan passively inspects live HTTP response behaviors,
+                    analyzing cryptographic transport settings, browser defense headers, cross-origin resource sharing (CORS) rules, and session cookie attributes.
+                </p>
+                <div class="p-3 rounded bg-dark border border-secondary mb-3">
+                    <span class="text-info fw-bold d-block mb-1"><i class="bi bi-crosshair me-1"></i>Primary Target Audiences:</span>
+                    <ul class="mb-0 ps-3">
+                        <li><strong>Cybersecurity Students & Beginners:</strong> Learning foundational defensive concepts and OWASP secure coding standards.</li>
+                        <li><strong>Web Developers:</strong> Verifying that security headers and session cookies are deployed properly prior to production releases.</li>
+                        <li><strong>Authorized Security Labs & Audits:</strong> Conducting repeatable, non-destructive initial configuration assessments.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Headers Explanations -->
+        <div class="soc-card mb-4">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-file-earmark-code me-2 text-info"></i>HTTP Security Headers Evaluated</span>
+            </div>
+            <div class="soc-card-body small">
+                <div class="accordion accordion-soc" id="headerDocsAccordion">
+                    <!-- CSP -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="h-csp">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c-csp">
+                                Content-Security-Policy (CSP)
+                            </button>
+                        </h2>
+                        <div id="c-csp" class="accordion-collapse collapse show" data-bs-parent="#headerDocsAccordion">
+                            <div class="accordion-body">
+                                Restricts the domains and sources from which scripts, images, and other assets can load. Mitigates Cross-Site Scripting (XSS) and data injection. SecureScan evaluates directives for dangerous keywords like <code>'unsafe-inline'</code> or <code>'unsafe-eval'</code>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HSTS -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="h-hsts">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-hsts">
+                                Strict-Transport-Security (HSTS)
+                            </button>
+                        </h2>
+                        <div id="c-hsts" class="accordion-collapse collapse" data-bs-parent="#headerDocsAccordion">
+                            <div class="accordion-body">
+                                Instructs browsers that the site must only be accessed using HTTPS. Protects against SSL-stripping and man-in-the-middle attacks. SecureScan verifies the <code>max-age</code> value (minimum 6 months recommended) and checks for <code>includeSubDomains</code> and <code>preload</code>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- XCTO -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="h-xcto">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-xcto">
+                                X-Content-Type-Options
+                            </button>
+                        </h2>
+                        <div id="c-xcto" class="accordion-collapse collapse" data-bs-parent="#headerDocsAccordion">
+                            <div class="accordion-body">
+                                Disables browser MIME-type sniffing. When set to <code>nosniff</code>, forces user agents to adhere strictly to the declared <code>Content-Type</code>, mitigating MIME confusion exploits.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- XFO -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="h-xfo">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-xfo">
+                                X-Frame-Options
+                            </button>
+                        </h2>
+                        <div id="c-xfo" class="accordion-collapse collapse" data-bs-parent="#headerDocsAccordion">
+                            <div class="accordion-body">
+                                Prevents Clickjacking attacks by controlling whether a page can be rendered inside a <code>&lt;frame&gt;</code>, <code>&lt;iframe&gt;</code>, or <code>&lt;object&gt;</code>. SecureScan also checks if a modern CSP <code>frame-ancestors</code> directive provides equivalent or superior protection.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Referrer-Policy -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="h-rp">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-rp">
+                                Referrer-Policy
+                            </button>
+                        </h2>
+                        <div id="c-rp" class="accordion-collapse collapse" data-bs-parent="#headerDocsAccordion">
+                            <div class="accordion-body">
+                                Governs how much referrer information (URL paths, sensitive query parameters) is included with requests when navigating from the application to external links.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permissions-Policy -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="h-pp">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c-pp">
+                                Permissions-Policy
+                            </button>
+                        </h2>
+                        <div id="c-pp" class="accordion-collapse collapse" data-bs-parent="#headerDocsAccordion">
+                            <div class="accordion-body">
+                                Allows web developers to restrict or disable powerful browser hardware APIs (e.g. camera, microphone, geolocation, screen-wake-lock) across first-party code and embedded third-party iframes.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scope Limitations -->
+        <div class="soc-card">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-exclamation-octagon me-2 text-warning"></i>Assessment Limitations & Scope Boundaries</span>
+            </div>
+            <div class="soc-card-body small text-light">
+                <p class="mb-2">
+                    To maintain safe, non-destructive operation, SecureScan intentionally <strong>DOES NOT</strong> perform:
+                </p>
+                <ul class="mb-3 ps-3">
+                    <li>Dynamic injection testing (SQL injection, Command injection, Path traversal).</li>
+                    <li>Active exploitation, brute-force credential stuffing, or password guessing.</li>
+                    <li>Authenticated business logic flaw analysis.</li>
+                    <li>Arbitrary JavaScript execution or headless browser crawling.</li>
+                    <li>Internal port scanning or network reconnaissance.</li>
+                </ul>
+                <div class="alert alert-dark border-secondary p-2 mb-0 small">
+                    <i class="bi bi-info-circle me-1 text-info"></i> <strong>Important Note:</strong> The absence of findings from a passive configuration scan does not guarantee that the target is free from web application vulnerabilities.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Severity & Scoring Model -->
+    <div class="col-lg-4">
+        <!-- Severity Model Card -->
+        <div class="soc-card mb-4">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-bar-chart-steps me-2 text-info"></i>Severity Classification</span>
+            </div>
+            <div class="soc-card-body small">
+                <div class="mb-3">
+                    <span class="badge-sev-high d-inline-block mb-1">HIGH SEVERITY</span>
+                    <p class="text-muted mb-0">Direct exposure of sensitive data, plaintext HTTP transmission, invalid TLS certificates, or dangerous CORS configurations (wildcard origin + credentials).</p>
+                </div>
+                <div class="mb-3">
+                    <span class="badge-sev-medium d-inline-block mb-1">MEDIUM SEVERITY</span>
+                    <p class="text-muted mb-0">Missing vital defense-in-depth controls such as Content-Security-Policy or X-Frame-Options (Clickjacking vulnerability), and missing HttpOnly flags on session cookies.</p>
+                </div>
+                <div class="mb-3">
+                    <span class="badge-sev-low d-inline-block mb-1">LOW SEVERITY</span>
+                    <p class="text-muted mb-0">Missing X-Content-Type-Options, sub-optimal HSTS duration, or missing explicit SameSite cookie directives.</p>
+                </div>
+                <div>
+                    <span class="badge-sev-info d-inline-block mb-1">INFORMATIONAL</span>
+                    <p class="text-muted mb-0">Verified best practices, properly configured headers, or non-applicable rules for the detected scheme.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posture Scoring Model -->
+        <div class="soc-card mb-4">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-calculator me-2 text-info"></i>Posture Score Formula</span>
+            </div>
+            <div class="soc-card-body small text-light">
+                <p class="text-muted mb-2">The security score is calculated starting from a baseline of 100 with weighted deductions:</p>
+                <div class="code-box mb-3">Score = 100 - (High * 25 + Med * 10 + Low * 4)</div>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-1"><span class="badge grade-A me-2 font-monospace">A</span> 90 – 100: Hardened Posture</li>
+                    <li class="mb-1"><span class="badge grade-B me-2 font-monospace">B</span> 75 – 89: Good (Minor hardening)</li>
+                    <li class="mb-1"><span class="badge grade-C me-2 font-monospace">C</span> 60 – 74: Fair (Review needed)</li>
+                    <li class="mb-1"><span class="badge grade-D me-2 font-monospace">D</span> 40 – 59: Poor (Multiple risks)</li>
+                    <li><span class="badge grade-F me-2 font-monospace">F</span> 0 – 39: Critical Deficits</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Authoritative References -->
+        <div class="soc-card">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-box-arrow-up-right me-2 text-info"></i>Authoritative Standards</span>
+            </div>
+            <div class="soc-card-body small">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <a href="https://owasp.org/www-project-secure-headers/" target="_blank" rel="noopener noreferrer" class="text-info text-decoration-none">
+                            <i class="bi bi-link-45deg me-1"></i>OWASP Secure Headers Project
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html" target="_blank" rel="noopener noreferrer" class="text-info text-decoration-none">
+                            <i class="bi bi-link-45deg me-1"></i>OWASP Transport Layer Protection
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS" target="_blank" rel="noopener noreferrer" class="text-info text-decoration-none">
+                            <i class="bi bi-link-45deg me-1"></i>MDN Web Docs: CORS
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://datatracker.ietf.org/doc/html/rfc6797" target="_blank" rel="noopener noreferrer" class="text-info text-decoration-none">
+                            <i class="bi bi-link-45deg me-1"></i>RFC 6797: HTTP Strict Transport Security
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

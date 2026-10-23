@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | SecureScan Web Security Scanner{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Top Hero Section -->
+    <div class="col-12">
+        <div class="soc-card p-4 text-center text-md-start" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge mb-2 px-3 py-1" style="background-color: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid rgba(6, 182, 212, 0.3);">
+                        <i class="bi bi-shield-shaded me-1"></i> Defensive Web Security Assessment Engine
+                    </span>
+                    <h1 class="h2 fw-bold text-white mb-2">Automated Web Security Scanner</h1>
+                    <p class="text-muted mb-0 lead fs-6">
+                        Assess web application security configurations against modern standards. Evaluate HTTP security headers, CORS cross-origin permissions, cookie attributes, and TLS certificate health.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{{ url_for('demo_page') }}" class="btn btn-outline-cyan py-2 px-3" id="hero-demo-btn">
+                        <i class="bi bi-play-circle-fill me-1"></i> Offline Demo Scenarios
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scan Initiation Form & Configuration -->
+    <div class="col-lg-8">
+        <div class="soc-card h-100">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-search me-2 text-info"></i>Configure New Target Assessment</span>
+                <span class="badge bg-secondary">Passive Audit Only</span>
+            </div>
+            <div class="soc-card-body">
+                <form action="{{ url_for('initiate_scan') }}" method="POST" id="scan-form">
+                    <!-- CSRF Token -->
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Target URL Field -->
+                    <div class="mb-3">
+                        <label for="target_url" class="form-label fw-semibold text-light">Target Website URL <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-info"><i class="bi bi-globe2"></i></span>
+                            <input type="url" class="form-control form-control-soc" id="target_url" name="target_url" placeholder="https://example.com" required autocomplete="off">
+                        </div>
+                        <div class="form-text text-muted">
+                            Must begin with explicit <code>http://</code> or <code>https://</code> scheme. Localhost, loopback, and private internal IP addresses are strictly blocked by SSRF defense controls.
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <!-- Request Timeout -->
+                        <div class="col-md-6">
+                            <label for="timeout" class="form-label fw-semibold text-light">Request Timeout</label>
+                            <select class="form-select form-select-soc" id="timeout" name="timeout">
+                                <option value="4">4 Seconds (Fast)</option>
+                                <option value="6" selected>6 Seconds (Recommended)</option>
+                                <option value="8">8 Seconds (Extended)</option>
+                                <option value="10">10 Seconds (Maximum Safe)</option>
+                            </select>
+                            <div class="form-text text-muted">Safe conservative bounds to prevent hang states.</div>
+                        </div>
+
+                        <!-- Scan Profile -->
+                        <div class="col-md-6">
+                            <label for="scan_profile" class="form-label fw-semibold text-light">Assessment Profile</label>
+                            <select class="form-select form-select-soc" id="scan_profile" name="scan_profile">
+                                <option value="standard_passive" selected>Standard Passive Configuration Audit</option>
+                            </select>
+                            <div class="form-text text-muted">Non-destructive evaluation (Headers, CORS, Cookies, TLS).</div>
+                        </div>
+                    </div>
+
+                    <!-- Mandatory Authorization Checkbox -->
+                    <div class="alert alert-dark border-secondary p-3 mb-4" style="background-color: rgba(15, 23, 42, 0.7);">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="auth_confirm" name="auth_confirm" required>
+                            <label class="form-check-label text-light small" for="auth_confirm">
+                                <strong>Authorization & Ethical Consent Confirmation:</strong><br>
+                                I verify that I am the owner, authorized operator, or have explicit permission to audit the specified target. I understand SecureScan is a defensive tool and must never be directed toward unauthorized systems.
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-cyan btn-lg" id="start-scan-btn">
+                            <i class="bi bi-shield-check me-2"></i> Launch Security Audit
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading Radar Overlay (Shown during active scan) -->
+                <div id="scan-loading-overlay" class="text-center py-5">
+                    <div class="scanner-radar-pulse"></div>
+                    <h5 class="fw-bold text-info mb-1">Scanning Target in Progress...</h5>
+                    <p class="text-muted small mb-0">Querying HTTP endpoints, validating TLS certificates, evaluating security headers, and checking CORS policies.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Quick Stats & Offline Fixtures -->
+    <div class="col-lg-4">
+        <div class="row g-3">
+            <!-- Current Session Metrics Card -->
+            <div class="col-12">
+                <div class="soc-card">
+                    <div class="soc-card-header">
+                        <span class="fw-bold"><i class="bi bi-activity me-2 text-info"></i>Current Session Metrics</span>
+                    </div>
+                    <div class="soc-card-body">
+                        <div class="row g-2 text-center">
+                            <div class="col-6">
+                                <div class="metric-box metric-high">
+                                    <div class="metric-label">High Severity</div>
+                                    <div class="metric-value text-danger" id="session-high">{{ session_metrics.high }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="metric-box metric-med">
+                                    <div class="metric-label">Medium Severity</div>
+                                    <div class="metric-value text-warning" id="session-med">{{ session_metrics.medium }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="metric-box metric-low">
+                                    <div class="metric-label">Low Severity</div>
+                                    <div class="metric-value text-info" id="session-low">{{ session_metrics.low }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="metric-box metric-info">
+                                    <div class="metric-label">Completed Scans</div>
+                                    <div class="metric-value text-light" id="session-scans">{{ session_metrics.total_scans }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Mode Quick Access Card -->
+            <div class="col-12">
+                <div class="soc-card" style="border-left: 4px solid var(--accent-cyan);">
+                    <div class="soc-card-header">
+                        <span class="fw-bold"><i class="bi bi-lightning-charge-fill me-2 text-info"></i>Instant Offline Test Scenarios</span>
+                    </div>
+                    <div class="soc-card-body">
+                        <p class="small text-muted mb-3">
+                            Evaluate the engine immediately without external network calls using preconfigured security scenarios:
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('run_demo_scenario', scenario_id='hardened') }}" class="btn btn-sm btn-outline-success text-start py-2">
+                                <i class="bi bi-shield-fill-check me-2"></i> Grade A: Hardened Web App
+                            </a>
+                            <a href="{{ url_for('run_demo_scenario', scenario_id='legacy') }}" class="btn btn-sm btn-outline-warning text-start py-2">
+                                <i class="bi bi-shield-fill-exclamation me-2"></i> Grade D: Legacy (Missing Headers)
+                            </a>
+                            <a href="{{ url_for('run_demo_scenario', scenario_id='permissive_cors') }}" class="btn btn-sm btn-outline-danger text-start py-2">
+                                <i class="bi bi-shield-fill-x me-2"></i> Permissive CORS Misconfiguration
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Section: Methodology & Assessment Boundaries -->
+    <div class="col-12">
+        <div class="soc-card">
+            <div class="soc-card-header">
+                <span class="fw-bold"><i class="bi bi-journal-check me-2 text-info"></i>Audit Methodology & Defensive Boundaries</span>
+            </div>
+            <div class="soc-card-body">
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <i class="bi bi-shield-lock fs-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-light">Strict SSRF Defenses</h6>
+                                <p class="small text-muted mb-0">Pre-flight multi-IP DNS resolution blocks loopback, RFC 1918 private, link-local, and cloud metadata targets.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <i class="bi bi-file-earmark-code fs-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-light">6 Security Headers</h6>
+                                <p class="small text-muted mb-0">Analyzes Content-Security-Policy, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer, and Permissions policies.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <i class="bi bi-lock fs-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-light">Cookie Privacy Redaction</h6>
+                                <p class="small text-muted mb-0">Audits Secure, HttpOnly, and SameSite attributes while strictly masking secret values in all logs and reports.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <i class="bi bi-file-earmark-pdf fs-3 text-info"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-light">ReportLab PDF Reports</h6>
+                                <p class="small text-muted mb-0">Generates formal SOC executive reports complete with evidence, remediation steps, and OWASP references.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
